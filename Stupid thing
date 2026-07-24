@@ -1,0 +1,503 @@
+--!optimize 2
+--[[
+	patchma hub by rqz
+	MyWorld was here
+	
+	bro unc is nice i like unc give unc (send help)
+	setphysicsrootpart_nounc.txt
+	god damn this fling is beautiful
+
+	Find rigs in Genesis Foundation (roblox.com/games/14133411956), most old patchma rigs should also work
+	
+	IDs of free accessories:
+	3033910400,3409612660,3438342658,3398308134,4324158403,3822880197,4154538250,3443038622,4819740796
+
+	accessories for Immortality Lord:
+	head: 17375337078 or 17270164442 or 105058659622112
+	body: 121668589285446,80629770394501,127671621543010,76687571475377,120230112701079
+	or 132908702618809,122975605535029,115313441748457,127208207296576,131203955709755
+	or 17270178857,17270001635,17269952801,17269983359,17269998373
+	wings: 17270231731,17270225913
+	sword: 17326812233,17326800544
+]]
+
+--no need to get and index the library tables with function names every time the script uses them
+local osclock=os.clock
+local tspawn=task.spawn
+local tdelay=task.delay
+local twait=task.wait
+local schar=string.char
+local ssub=string.sub
+local sfind=string.find
+local supper=string.upper
+local mrandom=math.random
+local sin=math.sin
+local cos=math.cos
+local abs=math.abs
+local min=math.min
+local sqrt=math.sqrt
+local clamp=math.clamp
+local tinsert=table.insert
+local tclear=table.clear
+local tclone=table.clone
+local tfind=table.find
+local cyield=coroutine.yield
+local cresume=coroutine.resume
+local crunning=coroutine.running
+local vmagnitude=vector.magnitude --faster than indexing with Magnitude
+local vnormalize=vector.normalize --faster than indexing with Unit
+
+--the script doesnt have to read global varaibles every time to get them
+--why not have them saved in local varaibles for faster access times
+local next=next
+local pcall=pcall
+local xpcall=xpcall
+local type=type
+local typeof=typeof
+local game=game
+local sethiddenproperty=sethiddenproperty
+local setscriptable=setscriptable
+local replicatesignal=replicatesignal
+
+local i=Instance.new 
+local v2=Vector2.new 
+local v3=Vector3.new
+local c3=Color3.new 
+local cf=CFrame.new
+local cfl=CFrame.lookAt
+local angles=CFrame.fromEulerAngles --faster than .Angles
+local u2=UDim2.new 
+local e=Enum 
+local rp=RaycastParams.new 
+local cs=ColorSequence.new 
+local csk=ColorSequenceKeypoint.new 
+
+local sine=osclock()
+local deltaTime=0
+local v3_0=v3()
+local v3_101=v3(1,0,1)
+local v3_010=v3(0,1,0)
+local cf_0=cf()
+local v3_xz=v3_101*10
+local v3_xzL=v3_101*250.1
+local v3_net=v3_010*25.01
+
+local enumMD=e.MouseBehavior.Default
+
+local sm=v3_010/2
+local dense=PhysicalProperties.new(100,0,0,100,100)
+local light=PhysicalProperties.new(0.0001,0,0,100,100)
+local humstatesbl=e.HumanoidStateType:GetEnumItems()
+table.remove(humstatesbl,tfind(humstatesbl,e.HumanoidStateType.Running))
+table.remove(humstatesbl,tfind(humstatesbl,e.HumanoidStateType.None))
+
+--not "local function rs" to not assign debug names
+local rs=function()
+	local s=""
+	for i=1,mrandom(8,15) do
+		if mrandom(2)==2 then
+			s=s..schar(mrandom(65,90))
+		else
+			s=s..schar(mrandom(97,122))
+		end
+	end
+	return s
+end
+
+--it runs even faster if u call __index and __newindex metamethods directly
+local getMetamethodFromErrorStack=function(userdata,f,test)
+	local ret=nil
+	xpcall(f,function()
+		ret=debug.info(2,"f")
+	end,userdata,nil,0)
+	if (type(ret)~="function") or not test(ret) then
+		return f
+	end
+	return ret
+end
+local insSet=getMetamethodFromErrorStack(game,function(a,b,c) a[b]=c end,function(f) local a=i("Folder") local b=rs() f(a,"Name",b) return a.Name==b end)
+local insGet=getMetamethodFromErrorStack(game,function(a,b) return a[b] end,function(f) local a=i("Folder") local b=rs() a.Name=b return f(a,"Name")==b end)
+local cfGet=getMetamethodFromErrorStack(cf_0,function(a,b) return a[b] end,function(f) return f(cf(1,2,3),"Position")==v3(1,2,3) end)
+local cfMul=getMetamethodFromErrorStack(cf_0,function(a,b) return a*b end,function(f) return angles(1,2,3)*angles(1,2,3)==f(angles(1,2,3),angles(1,2,3)) end)
+local cfAdd=getMetamethodFromErrorStack(cf_0,function(a,b) return a+b end,function(f) return cf(1,2,3)+v3(1,2,3)==f(cf(1,2,3),v3(1,2,3)) end)
+local v3Get=getMetamethodFromErrorStack(v3_0,function(a,b) return a[b] end,function(f) return v3(1,2,3).Unit==f(v3(1,2,3),"Unit") end)
+local v2Get=getMetamethodFromErrorStack(v2(),function(a,b) return a[b] end,function(f) return f(v2(1,2),"Y")==2 end)
+--multiplying and adding vector3 is faster if you use the * and + operators
+--its faster to multiply X and Y of vector2 than to multiply vector2 and then get X and Y from it
+
+--no need to index instances every time to call their functions
+local Clone=insGet(game,"Clone")
+local ClearAllChildren=insGet(game,"ClearAllChildren")
+local Destroy=insGet(game,"Destroy")
+local IsA=insGet(game,"IsA")
+local FindFirstChildOfClass=insGet(game,"FindFirstChildOfClass")
+local FindFirstChildWhichIsA=insGet(game,"FindFirstChildWhichIsA")
+local GetChildren=insGet(game,"GetChildren")
+local IsDescendantOf=insGet(game,"IsDescendantOf")
+local QueryDescendants=insGet(game,"QueryDescendants")
+local GetPropertyChangedSignal=insGet(game,"GetPropertyChangedSignal")
+
+--findfirstchildofclass faster than getservice
+local plrs=FindFirstChildOfClass(game,"Players")
+local rus=FindFirstChildOfClass(game,"RunService")
+local ws=FindFirstChildOfClass(game,"Workspace")
+local uis=FindFirstChildOfClass(game,"UserInputService")
+local gs=FindFirstChildOfClass(game,"GuiService")
+local sg=FindFirstChildOfClass(game,"StarterGui")
+local lp=insGet(plrs,"LocalPlayer")
+local pg=FindFirstChildOfClass(lp,"PlayerGui")
+local mouse=insGet(lp,"GetMouse")(lp)
+local rst=insGet(plrs,"RespawnTime")+0.07 --1/15
+local preanimation=insGet(rus,"PreAnimation")
+local stepped=insGet(rus,"Stepped")
+local heartbeat=insGet(rus,"Heartbeat")
+local renderstepped=insGet(rus,"RenderStepped")
+
+local GetPlayers=insGet(plrs,"GetPlayers")
+local BreakJoints=insGet(i("Model"),"BreakJoints")
+local GetJoints=insGet(insGet(ws,"Terrain"),"GetJoints")
+local SetCoreGuiEnabled=insGet(sg,"SetCoreGuiEnabled")
+local GetCoreGuiEnabled=insGet(sg,"GetCoreGuiEnabled")
+local Raycast=insGet(ws,"Raycast")
+local Connect=heartbeat.Connect
+local Disconnect=Connect(GetPropertyChangedSignal(game,"CreatorId"),type).Disconnect
+local Wait=heartbeat.Wait
+local GetMouseLocation=insGet(uis,"GetMouseLocation")
+local GetFocusedTextBox=insGet(uis,"GetFocusedTextBox")
+local GetMouseDelta=insGet(uis,"GetMouseDelta")
+local IsMouseButtonPressed=insGet(uis,"IsMouseButtonPressed")
+local IsKeyDown=insGet(uis,"IsKeyDown")
+
+local Inverse=cfGet(cf_0,"Inverse")
+local Lerp=cfGet(cf_0,"Lerp")
+
+local guiTheme={
+	guiTitle="patchma hub v60",
+	windowTitleColor=c3(1,0,0),
+	windowTopColor=c3(0,0,0),
+	windowBottomColor=c3(0.584314,0,0),
+	windowMinimizedSize={X=220,Y=22},
+	windowRegularSize={X=220,Y=290},
+	buttonsTextColor=c3(1,0,0),
+	labelsTextColor=c3(0.560784,0.560784,0.560784),
+	listTopColor=c3(0,0,0),
+	listBottomColor=c3(0.0705882,0.0705882,0.0705882)
+}
+
+--[[ Old myworld gui blue theme, uncomment to restore blue patchma
+local guiTheme={
+	guiTitle="patchma hub v60",
+	windowTitleColor=c3(0,0,1),
+	windowTopColor=c3(0,0,0),
+	windowBottomColor=c3(0,0,0.584314),
+	windowMinimizedSize={X=220,Y=22},
+	windowRegularSize={X=220,Y=290},
+	buttonsTextColor=c3(0.0941177,0.317647,0.878431),
+	labelsTextColor=c3(0.560784,0.560784,0.560784),
+	listTopColor=c3(0,0,0),
+	listBottomColor=c3(0.0705882,0.0705882,0.0705882)
+}
+]]
+
+local aligns={
+	--[[
+		example: 
+		{PartName="Right Arm",meshid="123456789",textureid="123456789",AccessoryName="Name",C0=cf(1,2,3)*angles(1,2,3)},
+
+		PartName (required) - the name of the body part you want to align the hat to
+		meshid (optional) - mesh id of the mesh of the accessory you want to align
+		textureid (optional) - texture id of the mesh of the accessory you want to align
+		AccessoryName (optional) - instance name of the accessory you want to align 
+		C0 (optional) - offset from the target body part to the accessory (defaults to cf(0,0,0) if unspecified)
+		
+		accessories will align to the first entry whose criteria they match
+		(unspecified meshid/textureid/accessoryname accepts all accessories)
+		
+		each entry aligns one accessory at most
+	]]
+
+	-- unknown head
+	{PartName="Head",meshid="11601535857",C0=angles(0,3.141592653589793,0)},
+
+	-- patchma gear arms
+	{PartName="Left Arm",meshid="13831073174",C0=cfMul(cf(0.017,0,-0.23),angles(-1.4835298641951802,-0.15707963267948966,2.199114857512855))},
+	{PartName="Right Arm",meshid="13839903766",C0=cfMul(cf(0,-0.62,-0.01),angles(1.6580627893946132,0.15707963267948966,-2.199114857512855))},
+
+	-- patchma yellow leg
+	{PartName="Left Leg",meshid="11159370334",textureid="11159285454",C0=angles(1.5707963267948966,0,1.5707963267948966)},
+
+	-- patchma lego piece leg
+	{PartName="Right Leg",meshid="12652772399",textureid="12652775021",C0=cf(0,-0.125,0)},
+
+	-- offsale white rig
+	-- a ton of offsaled black torso's
+	{PartName="Torso",meshid="14768666349"},
+	{PartName="Torso",meshid="14241018198"},
+	{PartName="Torso",meshid="13421774668"},
+	{PartName="Left Leg",meshid="14255522247",C0=angles(1.5707963267948966,0,1.5707963267948966)},
+	{PartName="Right Leg",meshid="14255522247",C0=angles(-1.5707963267948966,0,1.5707963267948966)},
+	{PartName="Left Arm",meshid="14768684979",C0=angles(0,0,1.5707963267948966)},
+	{PartName="Right Arm",meshid="14768684979",C0=angles(0,0,1.5707963267948966)},
+
+	-- og fur body, r15 arms, smiley legs rig
+	{PartName="Head",meshid="13953154391"},
+	{PartName="Torso",meshid="13778226115"},
+	{PartName="Left Leg",meshid="11159370334",textureid="11159284657",C0=angles(1.5707963267948966,0,1.5707963267948966)},
+	{PartName="Right Leg",meshid="11263221350",textureid="11263219250",C0=angles(-1.5707963267948966,0,1.5707963267948966)},
+	{PartName="Left Arm",meshid="12344207333",C0=angles(2,0,0)},
+	{PartName="Right Arm",meshid="12344206657",C0=angles(2,0,0)},
+
+	-- torso for both "white limbs black torso rig" and "black rig"
+	{PartName="Torso",meshid="110684113028749"},
+	-- white limbs black torso rig
+	{PartName="Head",meshid="13058343355",C0=angles(0,3.141592653589793,0)},
+	{PartName="Left Leg",meshid="139733645770094",C0=angles(0,0,1.5707963267948966)},
+	{PartName="Right Leg",meshid="99608462237958",C0=angles(0,0,1.5707963267948966)},
+	{PartName="Left Arm",meshid="90736849096372",C0=angles(0,0,1.5707963267948966)},
+	{PartName="Right Arm",meshid="105141400603933",C0=angles(0,0,1.5707963267948966)},
+	-- head for black rigs
+	{PartName="Head",meshid="13953153289"},
+	-- lay offsale black rig
+	{PartName="Left Leg",meshid="17387586286",C0=angles(1.5707963267948966,0,1.5707963267948966)},
+	{PartName="Right Leg",meshid="17387586286",C0=angles(-1.5707963267948966,0,1.5707963267948966)},
+	{PartName="Left Arm",meshid="17374767929",C0=angles(1.5707963267948966,0,1.5707963267948966)},
+	{PartName="Right Arm",meshid="17374767929",C0=angles(-1.5707963267948966,0,1.5707963267948966)},
+	-- 7ws offsale black rig
+	{PartName="Left Leg",meshid="125405780718494",C0=angles(1.5707963267948966,0,1.5707963267948966)},
+	{PartName="Right Leg",meshid="125405780718494",C0=angles(-1.5707963267948966,0,1.5707963267948966)},
+	{PartName="Left Arm",meshid="125405780718494",C0=angles(1.5707963267948966,0,1.5707963267948966)},
+	{PartName="Right Arm",meshid="125405780718494",C0=angles(-1.5707963267948966,0,1.5707963267948966)},
+
+	-- meshless rig
+	{PartName="Head",meshid="13953094351"},
+	{PartName="Torso",meshid="127552124837034",C0=angles(0,0,1.5707963267948966)},
+	{PartName="Left Leg",meshid="121304376791439"},
+	{PartName="Right Leg",meshid="121304376791439"},
+	{PartName="Left Arm",meshid="117287001096396"},
+	{PartName="Right Arm",meshid="117287001096396"},
+
+	-- head for noob rig
+	{PartName="Head",meshid="13058309233",C0=angles(0,3.141592653589793,0)},
+	-- lay offsale noob rig
+	{PartName="Torso",meshid="18640899369"},
+	{PartName="Left Leg",meshid="18640901641"},
+	{PartName="Right Leg",meshid="18640901641"},
+	{PartName="Left Arm",meshid="18640914129"},
+	{PartName="Right Arm",meshid="18640914129"},
+	-- 7ws offsale noob rig
+	{PartName="Torso",meshid="126825022897778"},
+	{PartName="Left Leg",textureid="73798034827573",C0=angles(0,0,1.5707963267948966)},
+	{PartName="Right Leg",textureid="73798034827573",C0=angles(0,0,1.5707963267948966)},
+	{PartName="Left Arm",textureid="135650240593878",C0=angles(0,0,1.5707963267948966)},
+	{PartName="Right Arm",textureid="135650240593878",C0=angles(0,0,1.5707963267948966)},
+
+	-- white torso
+	{PartName="Torso",meshid="126825022897778"},
+
+	-- lay onsale gray torso white arm black leg rig
+	{PartName="Torso",meshid="139792224823925"},
+	{PartName="Left Leg",meshid="83395427313429",C0=angles(0,0,1.5707963267948966)},
+	{PartName="Right Leg",meshid="83395427313429",C0=angles(0,0,1.5707963267948966)},
+	{PartName="Left Arm",meshid="105263225400272",C0=angles(0,0,1.5707963267948966)},
+	{PartName="Right Arm",meshid="105263225400272",C0=angles(0,0,1.5707963267948966)},
+
+	-- shownape/geecee auto rig
+	{PartName="Head",AccessoryName="Accessory (autorig_Head)"},
+	{PartName="Torso",AccessoryName="Accessory (autorig_Torso)"},
+	{PartName="Left Leg",AccessoryName="Accessory (autorig_LeftLeg)"},
+	{PartName="Right Leg",AccessoryName="Accessory (autorig_RightLeg)"},
+	{PartName="Left Arm",AccessoryName="Accessory (autorig_LeftArm)"},
+	{PartName="Right Arm",AccessoryName="Accessory (autorig_RightArm)"},
+
+	-- free rig
+	{PartName="Left Arm",meshid="4324138105",textureid="4324138210",C0=angles(-1.6144295580947547,1.5707963267948966,0)*cf(-0.125,0.3,0)},
+	{PartName="Left Arm",meshid="4154474745",textureid="4154474807",C0=angles(1.5271630954950384,-1.5707963267948966,0)*cf(-0.125,-0.3,0)},
+	{PartName="Right Arm",meshid="3030546036",textureid="3650191503",C0=angles(1.5271630954950384,1.5707963267948966,0)*cf(0.125,-0.3,0)},
+	{PartName="Right Arm",meshid="3030546036",textureid="3443321249",C0=angles(-1.6144295580947547,-1.5707963267948966,0)*cf(0.125,0.3,0)},
+	{PartName="Left Leg",meshid="3030546036",textureid="3360974849",C0=angles(1.5271630954950384,1.5707963267948966,0)*cf(-0.125,-0.35,0)},
+	{PartName="Left Leg",meshid="3030546036",textureid="3360978739",C0=angles(-1.6144295580947547,-1.5707963267948966,0)*cf(-0.125,0.3,0)},
+	{PartName="Right Leg",meshid="3030546036",textureid="3033898741",C0=angles(1.5271630954950384,-1.5707963267948966,0)*cf(0.125,-0.35,0)},
+	{PartName="Right Leg",meshid="3030546036",textureid="3409604993",C0=angles(-1.6144295580947547,1.5707963267948966,0)*cf(0.125,0.3,0)},
+	{PartName="Torso",meshid="4819720316",textureid="4819722776",C0=angles(0,0,0.2617993877991494)}
+}
+
+local makeplaceholder=function(v)
+	if not insGet(v,"Archivable") then
+		insSet(v,"Archivable",true)
+	end
+	v=Clone(v)
+	local mesh=FindFirstChildOfClass(v,"SpecialMesh")
+	if mesh then
+		insSet(mesh,"Parent",nil)
+		ClearAllChildren(v)
+		ClearAllChildren(mesh)
+		insSet(mesh,"Name",rs())
+		insSet(mesh,"Parent",v)
+	else
+		ClearAllChildren(v)
+	end
+	insSet(v,"Name",rs())
+	insSet(v,"Anchored",true)
+	insSet(v,"CanCollide",false)
+	insSet(v,"Transparency",0.25)
+	return v
+end
+local emptyfunction=function() end
+
+local i1=i("Frame") 
+local i2=i("Frame") 
+local i3=i("Frame") 
+local i4=i("ScrollingFrame") 
+local i5=i("UIListLayout") 
+local i6=i("UIGradient") 
+local i7=i("TextBox") 
+local i8=i("TextButton") 
+local i9=i("UIGradient") 
+local i10=i("ScreenGui") 
+insSet(i1,"AnchorPoint",v2(0.5,0))
+insSet(i1,"Active",true)
+insSet(i1,"BorderSizePixel",0)
+insSet(i1,"ClipsDescendants",true)
+insSet(i1,"Position",u2(0.5,0,0.5,guiTheme.windowRegularSize.Y/-2))
+insSet(i1,"Size",u2(0,guiTheme.windowRegularSize.X,0,guiTheme.windowRegularSize.Y))
+insSet(i1,"Name",rs())
+insSet(i1,"Parent",i10)
+insSet(i2,"BackgroundColor3",c3(1,1,1))
+insSet(i2,"BorderSizePixel",0)
+insSet(i2,"Size",u2(0,guiTheme.windowRegularSize.X,0,guiTheme.windowRegularSize.Y))
+insSet(i2,"Name",rs())
+insSet(i2,"Parent",i1)
+insSet(i3,"BackgroundColor3",c3(1,1,1))
+insSet(i3,"BorderSizePixel",0)
+insSet(i3,"Position",u2(0,5,0,guiTheme.windowMinimizedSize.Y-2))
+insSet(i3,"Size",u2(1,-10,0,guiTheme.windowRegularSize.Y-guiTheme.windowMinimizedSize.Y-3))
+insSet(i3,"Name",rs())
+insSet(i3,"Parent",i2)
+insSet(i4,"Active",true)
+insSet(i4,"BackgroundTransparency",1)
+insSet(i4,"BorderSizePixel",0)
+insSet(i4,"Size",u2(1,-3,1,0))
+insSet(i4,"AutomaticCanvasSize",e.AutomaticSize.Y)
+insSet(i4,"CanvasSize",u2(0,0,0,0))
+insSet(i4,"ScrollBarThickness",7)
+insSet(i4,"Name",rs())
+insSet(i4,"Parent",i3)
+insSet(i5,"Name",rs())
+insSet(i5,"Parent",i4)
+insSet(i5,"SortOrder",e.SortOrder.LayoutOrder)
+insSet(i6,"Name",rs())
+insSet(i6,"Parent",i3)
+insSet(i6,"Color",cs({csk(0,guiTheme.listTopColor),csk(1,guiTheme.listBottomColor)}))
+insSet(i6,"Rotation",90)
+insSet(i7,"Font",e.Font.SourceSans)
+insSet(i7,"FontSize",e.FontSize.Size18)
+insSet(i7,"ClearTextOnFocus",false)
+insSet(i7,"Text",guiTheme.guiTitle)
+insSet(i7,"TextColor3",guiTheme.windowTitleColor)
+insSet(i7,"TextSize",16)
+insSet(i7,"AnchorPoint",v2(0.5,0))
+insSet(i7,"BackgroundTransparency",1)
+insSet(i7,"Position",u2(0.5,0,0,guiTheme.windowMinimizedSize.Y/2))
+insSet(i7,"Name",rs())
+insSet(i7,"Parent",i2)
+insSet(i8,"AnchorPoint",v2(1,0))
+insSet(i8,"BackgroundTransparency",1)
+insSet(i8,"Position",u2(1,0,0,0))
+insSet(i8,"Size",u2(0,40,0,guiTheme.windowMinimizedSize.Y))
+insSet(i8,"Name",rs())
+insSet(i8,"Parent",i2)
+insSet(i8,"Font",e.Font.SourceSans)
+insSet(i8,"FontSize",e.FontSize.Size18)
+insSet(i8,"Text","-")
+insSet(i8,"TextColor3",c3(1,1,1))
+insSet(i8,"TextSize",16)
+insSet(i9,"Name",rs())
+insSet(i9,"Parent",i2)
+insSet(i9,"Color",cs({csk(0,guiTheme.windowTopColor),csk(1,guiTheme.windowBottomColor)}))
+insSet(i9,"Rotation",90)
+insSet(i10,"ZIndexBehavior",e.ZIndexBehavior.Sibling)
+insSet(i10,"IgnoreGuiInset",true)
+insSet(i10,"ResetOnSpawn",false)
+insSet(i10,"DisplayOrder",2147483647)
+insSet(i10,"Name",rs())
+local guimin=false
+local minloop=false
+local i1X=guiTheme.windowRegularSize.X
+local i1Y=guiTheme.windowRegularSize.Y
+local i1Xdest=i1X
+local i1Ydest=i1Y
+Connect(insGet(i8,"MouseButton1Click"),function()
+	guimin=not guimin
+	if guimin then
+		i1Xdest=guiTheme.windowMinimizedSize.X
+		i1Ydest=guiTheme.windowMinimizedSize.Y
+	else
+		i1Xdest=guiTheme.windowRegularSize.X
+		i1Ydest=guiTheme.windowRegularSize.Y
+	end
+	if minloop then
+		return
+	end
+	minloop=true
+	insSet(i3,"Visible",true) 
+	sine=osclock()
+	local lastsine=sine
+	while true do
+		sine=osclock()
+		local deltaTime=(sine-lastsine)*10
+		lastsine=sine
+		local difX=i1Xdest-i1X
+		local difY=i1Ydest-i1Y
+		if (abs(difY)<=1) and (abs(difX)<=1) then
+			i1X=i1Xdest
+			i1Y=i1Ydest
+			insSet(i1,"Size",u2(0,i1X,0,i1Y))
+			insSet(i3,"Visible",not guimin) 
+			minloop=false
+			return
+		end
+		i1X=i1X+difX*deltaTime
+		i1Y=i1Y+difY*deltaTime
+		insSet(i1,"Size",u2(0,i1X,0,i1Y))
+		twait()
+	end
+	insSet(i3,"Visible",not guimin) 
+	minloop=false
+end)
+local Draggable=function(window,obj)
+	local MB1enum=e.UserInputType.MouseButton1
+	local TOUCHenum=e.UserInputType.Touch
+	obj=obj or window
+	local activeEntered=0
+	local mouseStart=nil
+	local dragStart=nil
+	local inputbegancon=nil
+	local rendersteppedcon=nil
+	local inputendedcon=nil
+	local inputendedf=function(a)
+		a=insGet(a,"UserInputType")
+		if (a==MB1enum) or (a==TOUCHenum) then
+			Disconnect(rendersteppedcon)
+			Disconnect(inputendedcon)
+		end
+	end
+	local rendersteppedf=function()
+		local off=GetMouseLocation(uis)-mouseStart
+		insSet(window,"Position",dragStart+u2(0,v2Get(off,"X"),0,v2Get(off,"Y")))
+	end
+	local inputbeganf=function(a)
+		a=insGet(a,"UserInputType")
+		if ((a==MB1enum) or (a==TOUCHenum)) and (activeEntered==0) and not GetFocusedTextBox(uis) then
+			mouseStart=GetMouseLocation(uis)
+			dragStart=insGet(window,"Position")
+			if rendersteppedcon then Disconnect(rendersteppedcon) end
+			rendersteppedcon=Connect(renderstepped,rendersteppedf)
+			if inputendedcon then Disconnect(inputendedcon) end
+			inputendedcon=Connect(insGet(uis,"InputEnded"),inputendedf)
+		end
+	end
+	Connect(insGet(obj,"MouseEnter"),function()
+		if inputbegancon then Disconnect(inputbegancon) end
+		inputbegancon=Connect(insGet(uis,"InputBegan"),inputbeganf)
+	end)
+	Connect(insGet(obj,"MouseLeave"),function()
